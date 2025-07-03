@@ -1,9 +1,23 @@
 import { addLocation } from "@/lib/actions/add-location";
 import { Button } from "@/components/ui/button";
 
-export default function NewLocation({ params }: { params: { tripId: string } }) {
-  // Defensive: fallback if tripId is missing
-  const tripId = params?.tripId;
+// Accept both Promise and object for params for deployment compatibility
+export default async function NewLocation({
+  params,
+}: {
+  params: { tripId: string };
+} | {
+  params: Promise<{ tripId: string }>;
+}) {
+  let tripId: string | undefined;
+  if (params && typeof (params as Promise<any>).then === "function") {
+    // If params is a Promise (old deployment bug), await it
+    const resolved = await (params as Promise<{ tripId: string }>);
+    tripId = resolved.tripId;
+  } else {
+    tripId = (params as { tripId: string })?.tripId;
+  }
+
   if (!tripId) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -25,7 +39,7 @@ export default function NewLocation({ params }: { params: { tripId: string } }) 
             className="space-y-6"
             action={async (formData) => {
               "use server";
-              await addLocation(formData, tripId);
+              await addLocation(formData, tripId!);
             }}
           >
             <div>

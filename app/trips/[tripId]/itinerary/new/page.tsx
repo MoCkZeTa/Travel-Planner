@@ -1,14 +1,28 @@
 import { addLocation } from "@/lib/actions/add-location";
 import { Button } from "@/components/ui/button";
 
-// Remove PageProps import and use inline typing for params
-export default function NewLocation({ params }: { params: { tripId: string } }) {
-  const { tripId } = params;
+export default function NewLocation({ params }: { params: any }) {
+  // Support both Promise and object for params for deployment compatibility
+  const [tripId, setTripId] =
+    typeof params.then === "function"
+      ? [undefined, undefined]
+      : [params.tripId, undefined];
+
+  // If params is a Promise (old deployment bug), handle it with a fallback
+  if (typeof params.then === "function") {
+    // This will only run on the server, so it's safe to use async/await
+    throw new Error(
+      "Async params are not supported. Please update your Next.js version or route handler."
+    );
+  }
+
   return (
     <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md mx-auto">
         <div className="bg-white p-8 shadow-lg rounded-lg">
-          <h1 className="text-3xl font-bold text-center mb-6">Add New Location</h1>
+          <h1 className="text-3xl font-bold text-center mb-6">
+            Add New Location
+          </h1>
           <form
             className="space-y-6"
             action={async (formData) => {

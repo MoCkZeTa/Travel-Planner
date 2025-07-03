@@ -1,18 +1,16 @@
 import { addLocation } from "@/lib/actions/add-location";
 import { Button } from "@/components/ui/button";
 
-export default function NewLocation({ params }: { params: any }) {
-  // Support both Promise and object for params for deployment compatibility
-  const [tripId, setTripId] =
-    typeof params.then === "function"
-      ? [undefined, undefined]
-      : [params.tripId, undefined];
-
-  // If params is a Promise (old deployment bug), handle it with a fallback
-  if (typeof params.then === "function") {
-    // This will only run on the server, so it's safe to use async/await
-    throw new Error(
-      "Async params are not supported. Please update your Next.js version or route handler."
+export default function NewLocation({ params }: { params: { tripId: string } }) {
+  // Defensive: fallback if tripId is missing
+  const tripId = params?.tripId;
+  if (!tripId) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-red-600 font-bold text-lg">
+          Trip ID is missing from the URL.
+        </div>
+      </div>
     );
   }
 

@@ -14,6 +14,7 @@ async function geocodeAddress(address: string) {
   );
   const data = await response.json();
   if (!data.features || !data.features[0]) {
+    console.error("Mapbox geocode error:", JSON.stringify(data));
     throw new Error("No results found for the given address.");
   }
   const [lng, lat] = data.features[0].center;

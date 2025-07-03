@@ -1,6 +1,7 @@
 import { addLocation } from "@/lib/actions/add-location";
 import { Button } from "@/components/ui/button";
 
+// Remove PageProps import and use inline typing for params
 export default function NewLocation({ params }: { params: { tripId: string } }) {
   const { tripId } = params;
   return (

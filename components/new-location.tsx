@@ -1,32 +1,29 @@
 "use client";
 
-import { useTransition } from "react";
 import { Button } from "./ui/button";
 import { addLocation } from "@/lib/actions/add-location";
 
-export default function NewLocationClient({ tripId }: { tripId: string }) {
-  const [isPending, startTransation] = useTransition();
+interface NewLocationClientProps {
+  tripId: string;
+}
 
+export default function NewLocationClient({ tripId }: NewLocationClientProps) {
   return (
     <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md mx-auto">
         <div className="bg-white p-8 shadow-lg rounded-lg">
-          <h1 className="text-3xl font-bold text-center mb-6">
-            {" "}
-            Add New Location
-          </h1>
+          <h1 className="text-3xl font-bold text-center mb-6">Add New Location</h1>
 
           <form
             className="space-y-6"
-            action={(formData: FormData) => {
-              startTransation(() => {
-                addLocation(formData, tripId);
-              });
+            action={async (formData) => {
+              // ✅ Dynamically attach tripId to the formData
+              formData.append("tripId", tripId);
+              await addLocation(formData);
             }}
           >
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {" "}
                 Address
               </label>
               <input
@@ -37,7 +34,7 @@ export default function NewLocationClient({ tripId }: { tripId: string }) {
               />
             </div>
             <Button type="submit" className="w-full">
-              {isPending ? "Adding..." : "Add Location"}
+              Add Location
             </Button>
           </form>
         </div>

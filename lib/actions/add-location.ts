@@ -51,7 +51,6 @@ export async function addLocation(formData: FormData, tripId: string) {
 
     redirect(`/trips/${tripId}`);
   } catch (error: any) {
-    // Log error to server logs
     console.error("addLocation error:", error);
     // Send error to client for debugging
     throw new Error(error?.message || "Unknown error in addLocation");

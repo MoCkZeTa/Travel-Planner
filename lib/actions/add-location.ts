@@ -57,32 +57,43 @@ async function geocodeAddress(address: string) {
 //   }
 // }
 
+
+
 export async function addLocation(formData: FormData): Promise<void> {
-  const session = await auth();
-  if (!session) throw new Error("Not authenticated");
+  try {
+    const session = await auth();
+    if (!session) {
+      throw new Error("Not authenticated");
+    }
 
-  const address = formData.get("address")?.toString();
-  const tripId = formData.get("tripId")?.toString();
+    const address = formData.get("address")?.toString();
+    const tripId = formData.get("tripId")?.toString();
 
-  if (!address || !tripId) {
-    throw new Error("Missing address or tripId");
+    if (!address || !tripId) {
+      throw new Error("Missing address or tripId");
+    }
+
+    const { lat, lng } = await geocodeAddress(address);
+
+    const count = await prisma.location.count({
+      where: { tripId },
+    });
+
+    await prisma.location.create({
+      data: {
+        locationTitle: address,
+        lat,
+        lng,
+        tripId,
+        order: count,
+      },
+    });
+
+    // ✅ No redirect here — it's now handled in the client
+  } catch (error: any) {
+    console.error("addLocation error:", error);
+    throw new Error(error?.message || "Unknown error in addLocation");
   }
-
-  const { lat, lng } = await geocodeAddress(address);
-
-  const count = await prisma.location.count({
-    where: { tripId },
-  });
-
-  await prisma.location.create({
-    data: {
-      locationTitle: address,
-      lat,
-      lng,
-      tripId,
-      order: count,
-    },
-  });
-
-  redirect(`/trips/${tripId}`);
 }
+
+

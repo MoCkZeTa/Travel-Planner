@@ -1,5 +1,7 @@
 "use client";
 
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
 import { addLocation } from "@/lib/actions/add-location";
 
@@ -8,6 +10,9 @@ interface NewLocationClientProps {
 }
 
 export default function NewLocationClient({ tripId }: NewLocationClientProps) {
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
   return (
     <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md mx-auto">
@@ -16,10 +21,12 @@ export default function NewLocationClient({ tripId }: NewLocationClientProps) {
 
           <form
             className="space-y-6"
-            action={async (formData) => {
-              // ✅ Dynamically attach tripId to the formData
-              formData.append("tripId", tripId);
-              await addLocation(formData);
+            action={(formData) => {
+              startTransition(async () => {
+                formData.append("tripId", tripId);
+                await addLocation(formData);
+                router.push(`/trips/${tripId}`); // ✅ client-side redirect after completion
+              });
             }}
           >
             <div>
@@ -33,8 +40,8 @@ export default function NewLocationClient({ tripId }: NewLocationClientProps) {
                 className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <Button type="submit" className="w-full">
-              Add Location
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending ? "Adding..." : "Add Location"}
             </Button>
           </form>
         </div>
